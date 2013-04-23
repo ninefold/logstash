@@ -12,8 +12,8 @@ default['logstash']['graphite_query'] = "roles:#{node['logstash']['graphite_role
 default['logstash']['elasticsearch_role'] = 'elasticsearch_server'
 default['logstash']['elasticsearch_query'] = "roles:#{node['logstash']['elasticsearch_role']} AND chef_environment:#{node.chef_environment}"
 default['logstash']['elasticsearch_cluster'] = 'logstash'
-default['logstash']['elasticsearch_ip'] = ''
-default['logstash']['elasticsearch_port'] = ''
+default['logstash']['elasticsearch_ip'] = nil
+default['logstash']['elasticsearch_port'] = nil
 default['logstash']['graphite_ip'] = ''
 
 default['logstash']['patterns'] = {}
@@ -25,3 +25,7 @@ when "rhel"
 when "debian"
   default['logstash']['zeromq_packages'] = [ "zeromq",  "libzmq-dev"]
 end
+default['logstash']['discovery']['environment_aware'] = true
+default['logstash']['discovery']['minimum_response_time_sec'] = false
+default['logstash']['discovery']['remove_self'] = false
+default['logstash']['discovery']['empty_ok'] = false

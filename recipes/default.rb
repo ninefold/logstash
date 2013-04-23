@@ -2,8 +2,10 @@
 # Cookbook Name:: logstash
 # Recipe:: default
 #
-include_recipe "runit" unless node["platform_version"] == "12.04"
-include_recipe "java"
+
+if(node['logstash']['init_type'] == 'runit')
+  include_recipe 'runit'
+end
 
 if node['logstash']['create_account']
 

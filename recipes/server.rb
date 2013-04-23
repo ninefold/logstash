@@ -10,6 +10,7 @@
 #
 
 include_recipe "logstash::default"
+include_recipe "java"
 include_recipe "logrotate"
 
 include_recipe "rabbitmq" if node['logstash']['server']['install_rabbitmq']
@@ -25,23 +26,23 @@ else
   patterns_dir = node['logstash']['basedir'] + '/' + node['logstash']['server']['patterns_dir']
 end
 
-if Chef::Config[:solo]
-  es_server_ip = node['logstash']['elasticsearch_ip']
-  graphite_server_ip = node['logstash']['graphite_ip']
-else
-  es_results = search(:node, node['logstash']['elasticsearch_query'])
-  graphite_results = search(:node, node['logstash']['graphite_query'])
+es_server_ip = node['logstash']['elasticsearch_ip']
+graphite_server_ip = node['logstash']['graphite_ip']
 
-  unless es_results.empty?
-    es_server_ip = es_results[0]['ipaddress']
-  else
-    es_server_ip = node['logstash']['elasticsearch_ip']
+unless(Chef::Config[:solo])
+  unless(es_server_ip)
+    es_server_ip = discovery_search(
+      node['logstash']['elasticsearch_role'],
+      node['logstash']['discovery']
+    )
+    es_server_ip = es_server_ip.ipaddress if es_server_ip
   end
-
-  unless graphite_results.empty?
-    graphite_server_ip = graphite_results[0]['ipaddress']
-  else
-    graphite_server_ip = node['logstash']['graphite_ip']
+  unless(graphite_server_ip)
+    graphite_server_ip = discovery_search(
+      node['logstash']['graphite_role'],
+      node['logstash']['discovery']
+    )
+    graphite_server_ip = graphite_server_ip.ipaddress if graphite_server_ip
   end
 end
 
@@ -119,40 +120,45 @@ template "#{node['logstash']['basedir']}/server/etc/logstash.conf" do
   owner node['logstash']['user']
   group node['logstash']['group']
   mode "0644"
-  variables(:graphite_server_ip => graphite_server_ip,
-            :es_server_ip => es_server_ip,
-            :enable_embedded_es => node['logstash']['server']['enable_embedded_es'],
-            :es_cluster => node['logstash']['elasticsearch_cluster'],
-            :patterns_dir => patterns_dir)
+  variables(
+    :graphite_server_ip => graphite_server_ip,
+    :es_server_ip => es_server_ip,
+    :enable_embedded_es => node['logstash']['server']['enable_embedded_es'],
+    :es_cluster => node['logstash']['elasticsearch_cluster'],
+    :patterns_dir => patterns_dir
+  )
   notifies :restart, "service[logstash_server]"
   action :create
 end
 
-if platform_family? "debian"
-  if node["platform_version"] == "12.04"
-    template "/etc/init/logstash_server.conf" do
-      mode "0644"
-      source "logstash_server.conf.erb"
-    end
+case node['logstash']['init_type']
+when 'upstart'
 
-    service "logstash_server" do
-      provider Chef::Provider::Service::Upstart
-      action [ :enable, :start ]
-    end
-  else
-    runit_service "logstash_server"
+  template "/etc/init/logstash-server.conf" do
+    mode "0644"
+    source "logstash_server.conf.erb"
   end
-elsif platform_family? "rhel","fedora"
+
+  service "logstash_server" do
+    service_name 'logstash-server'
+    provider Chef::Provider::Service::Upstart
+    action [ :enable, :start ]
+  end
+  
+when 'runit'
+  runit_service "logstash_server"
+else
   template "/etc/init.d/logstash_server" do
     source "init.erb"
     owner "root"
     group "root"
     mode "0774"
-    variables(:config_file => "logstash.conf",
-              :name => 'server',
-              :max_heap => node['logstash']['server']['xmx'],
-              :min_heap => node['logstash']['server']['xms']
-              )
+    variables(
+      :config_file => "logstash.conf",
+      :name => 'server',
+      :max_heap => node['logstash']['server']['xmx'],
+      :min_heap => node['logstash']['server']['xms']
+    )
   end
 
   service "logstash_server" do

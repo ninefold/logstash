@@ -1,124 +1,47 @@
 include_recipe "git"
 include_recipe "logrotate"
+include_recipe "build-essential"
 
 kibana_base = node['logstash']['kibana']['basedir']
 kibana_home = node['logstash']['kibana']['home']
 kibana_log_dir = node['logstash']['kibana']['log_dir']
 kibana_pid_dir = node['logstash']['kibana']['pid_dir']
 
-include_recipe "rbenv::default"
-include_recipe "rbenv::ruby_build"
+# Install ruby
+node.default[:ruby_installer][:package_removals] = %w(ruby1.8 ruby1.8-full)
+include_recipe 'ruby_installer'
 
-rbenv_ruby "1.9.3-p194" do
-  global true
-end
-
-rbenv_gem "bundler" do
-  ruby_version "1.9.3-p194"
-end
+gem_package 'bundler'
 
 if Chef::Config[:solo]
   es_server_ip = node['logstash']['elasticsearch_ip']
 else
-  es_server_results = search(:node, "roles:#{node['logstash']['elasticsearch_role']} AND chef_environment:#{node.chef_environment}")
+  es_server_results = discovery_all(
+    node['logstash']['elasticsearch_role'],
+    :minimum_response_time_sec => false,
+    :environment_aware => node['logstash']['discovery']['environment_aware'],
+    :empty_ok => false
+  )
   unless es_server_results.empty?
-    es_server_ip = es_server_results[0]['ipaddress']
+    es_server_ip = es_server_results.map do |es_srv|
+      es_srv['ipaddress']
+    end
   else
-    es_server_ip = node['logstash']['elasticsearch_ip'].empty? ? '127.0.0.1' : node['logstash']['elasticsearch_ip']
+    es_server_ip = node['logstash']['elasticsearch_ip'] || '127.0.0.1'
   end
 end
 
-es_server_port = node['logstash']['elasticsearch_port'].empty? ? '9200' : node['logstash']['elasticsearch_port']
+es_server_port = node['logstash']['elasticsearch_port'] || 9200
 
 #install new kibana version only if is true
 case node['logstash']['kibana']['language'].downcase
 when "ruby"
 
-  user "kibana" do
-    supports :manage_home => true
-    home "/home/kibana"
-    shell "/bin/bash"
-  end
-  
-  node.set[:rbenv][:group_users] = [ "kibana" ]
-
-  [ kibana_pid_dir, kibana_log_dir ].each do |dir|
-    Chef::Log.debug(dir)
-    directory dir do
-      owner 'kibana'
-      group 'kibana'
-      recursive true
-    end
-  end
-
-  Chef::Log.debug(kibana_base)
-  directory kibana_base do
-    owner 'kibana'
-    group 'kibana'
-    recursive true
-  end
-  
-  # for some annoying reason Gemfile.lock is shipped w/ kibana
-  file "gemfile_lock" do
-    path  "#{node['logstash']['kibana']['basedir']}/#{node['logstash']['kibana']['sha']}/Gemfile.lock"
-    action :delete
-  end
-  
-  git "#{node['logstash']['kibana']['basedir']}/#{node['logstash']['kibana']['sha']}" do
-    repository node['logstash']['kibana']['repo']
-    branch "kibana-ruby"
-    action :sync
-    user 'kibana'
-    group 'kibana'
-    notifies :delete, "file[gemfile_lock]", :immediately
-  end
-
-  link kibana_home do
-    to "#{node['logstash']['kibana']['basedir']}/#{node['logstash']['kibana']['sha']}"
-  end
-  
-  template '/home/kibana/.bash_profile' do # let bash handle our env vars
-    source 'kibana-bash_profile.erb'
-    owner 'kibana'
-    group 'kibana'
-    variables(
-              :pid_dir => kibana_pid_dir,
-              :log_dir => kibana_log_dir,
-              :app_name => "kibana",
-              :kibana_port => node['logstash']['kibana']['http_port'],
-              :smart_index => node['logstash']['kibana']['smart_index_pattern'],
-              :es_ip => es_server_ip,
-              :es_port => es_server_port,
-              :server_name => node['logstash']['kibana']['server_name']
-              )
-  end
-
-  template "/etc/init.d/kibana" do
-    source "kibana.init.erb"
-    owner 'root'
-    mode "755"
-    variables(
-              :kibana_home => kibana_home,
-              :user => 'kibana'
-              )
-  end
-
-  template "#{kibana_home}/KibanaConfig.rb" do
-    source "kibana-config.rb.erb"
-    owner 'kibana'
-    mode 0755
-  end
-  
-  template "#{kibana_home}/kibana-daemon.rb" do
-    source "kibana-daemon.rb.erb"
-    owner 'kibana'
-    mode 0755
-  end
-
-  bash "bundle install" do
-    cwd kibana_home
-    code "source /etc/profile.d/rbenv.sh && bundle install"
-    not_if { ::File.exists? "#{kibana_home}/Gemfile.lock" }
+  logstash_kibana 'default' do
+    conf(
+      'Elasticsearch' => Array(es_server_ip).map{|ip| "#{ip}:#{es_server_port}" },
+      'KibanaHost' => node[:ipaddress]
+    )
   end
 
   

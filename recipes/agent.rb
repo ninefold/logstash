@@ -4,6 +4,7 @@
 #
 #
 include_recipe "logstash::default"
+include_recipe "java"
 
 if node['logstash']['agent']['patterns_dir'][0] == '/'
   patterns_dir = node['logstash']['agent']['patterns_dir']
@@ -95,40 +96,6 @@ node['logstash']['patterns'].each do |file, hash|
   end
 end
 
-if platform_family? "debian"
-  if ["12.04", "12.10"].include? node["platform_version"]
-    template "/etc/init/logstash_agent.conf" do
-      mode "0644"
-      source "logstash_agent.conf.erb"
-    end
-
-    service "logstash_agent" do
-      provider Chef::Provider::Service::Upstart
-      action [ :enable, :start ]
-    end
-  else
-    runit_service "logstash_agent"
-  end
-elsif platform_family? "rhel", "fedora"
-  template "/etc/init.d/logstash_agent" do
-    source "init.erb"
-    owner "root"
-    group "root"
-    mode "0774"
-    variables(
-      :config_file => "shipper.conf",
-      :name => 'agent',
-      :max_heap => node['logstash']['agent']['xmx'],
-      :min_heap => node['logstash']['agent']['xms']
-    )
-  end
-
-  service "logstash_agent" do
-    supports :restart => true, :reload => true, :status => true
-    action :enable
-  end
-end
-
 if node['logstash']['agent']['install_method'] == "jar"
   remote_file "#{node['logstash']['basedir']}/agent/lib/logstash-#{node['logstash']['agent']['version']}.jar" do
     owner "root"
@@ -160,8 +127,9 @@ template "#{node['logstash']['basedir']}/agent/etc/shipper.conf" do
   group node['logstash']['group']
   mode "0644"
   variables(
-            :logstash_server_ip => logstash_server_ip,
-            :patterns_dir => patterns_dir)
+    :logstash_server_ip => logstash_server_ip,
+    :patterns_dir => patterns_dir
+  )
   notifies :restart, "service[logstash_agent]"
 end
 
@@ -171,6 +139,40 @@ directory node['logstash']['log_dir'] do
   owner node['logstash']['user']
   group node['logstash']['group']
   recursive true
+end
+
+case node['logstash']['init_type']
+when 'upstart'
+  template "/etc/init/logstash-agent.conf" do
+    mode "0644"
+    source "logstash_agent.conf.erb"
+  end
+
+  service "logstash_agent" do
+    service_name 'logstash-agent'
+    provider Chef::Provider::Service::Upstart
+    action [ :enable, :start ]
+  end
+when 'runit'
+  runit_service "logstash_agent"
+else
+  template "/etc/init.d/logstash_agent" do
+    source "init.erb"
+    owner "root"
+    group "root"
+    mode "0774"
+    variables(
+      :config_file => "shipper.conf",
+      :name => 'agent',
+      :max_heap => node['logstash']['agent']['xmx'],
+      :min_heap => node['logstash']['agent']['xms']
+    )
+  end
+
+  service "logstash_agent" do
+    supports :restart => true, :reload => true, :status => true
+    action :enable
+  end
 end
 
 logrotate_app "logstash" do
