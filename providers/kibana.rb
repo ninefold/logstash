@@ -1,9 +1,5 @@
 def load_current_resource
-  Chef::Log.warn "8" * 20
-  Chef::Log.warn "CONF: #{new_resource.conf.inspect}"
-  Chef::Log.warn "DEFAULT: #{Chef::Resource::LogstashKibana::DEFAULT_CONFIG}"
   new_resource.conf Chef::Resource::LogstashKibana::DEFAULT_CONFIG.merge(new_resource.conf)
-  Chef::Log.warn "CONF: #{new_resource.conf.inspect}"
   new_resource.init_type node[:logstash][:init_type] unless new_resource.init_type
 end
 

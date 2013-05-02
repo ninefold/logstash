@@ -41,10 +41,6 @@ action :create do
       group new_resource.group
     end
   end
-
-  Chef::Log.info '*' * 200
-  Chef::Log.info "FILES: #{new_resource.files.inspect}"
-  Chef::Log.info "CONF: #{new_resource.output.inspect}"
   
   template conf_file do
     cookbook 'logstash'
