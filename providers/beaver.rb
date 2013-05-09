@@ -7,7 +7,7 @@ def load_current_resource
   when String
     new_resource.files [Mash.new(:path => new_resource.files)]
   when Array
-    new_resource.files.map! do |elm|
+    processed = new_resource.files.map do |elm|
       case elm
       when String
         {:path => elm}
@@ -17,6 +17,7 @@ def load_current_resource
         elm
       end
     end
+    new_resource.files processed
   end
 end
 
