@@ -76,7 +76,7 @@ action :create do
 
     service "logstash_beaver_#{new_resource.name}" do
       service_name "logstash-beaver-#{new_resource.name}"
-      supports :restart => true, :reload => false
+      supports :restart => false, :reload => false
       action [:enable, :start]
       provider Chef::Provider::Service::Upstart
     end
