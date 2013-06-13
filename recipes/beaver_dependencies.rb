@@ -1,7 +1,7 @@
-include_recipe "logstash::default"
-include_recipe "python::default"
-include_recipe "logrotate"
-include_recipe "git" # NOTE: Do we need this?
+include_recipe 'logstash'
+include_recipe 'python'
+include_recipe 'logrotate'
+include_recipe 'git'
 
 if node['logstash']['agent']['install_zeromq']
   case
