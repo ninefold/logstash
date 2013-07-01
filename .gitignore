@@ -1,3 +1,5 @@
 metadata.json
 .vagrant
 #*#
+.kitchen/
+.kitchen.local.yml
