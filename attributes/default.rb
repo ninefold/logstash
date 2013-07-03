@@ -30,4 +30,5 @@ default['logstash']['discovery']['minimum_response_time_sec'] = false
 default['logstash']['discovery']['remove_self'] = false
 default['logstash']['discovery']['empty_ok'] = false
 
+default['logstash']['service_discovery'] = false
 default['logstash']['init_type'] = platform == 'ubuntu' ? 'upstart' : nil

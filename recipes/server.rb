@@ -31,7 +31,7 @@ if(node['logstash']['elasticsearch_ip'].nil?)
   graphite_server_ip = node['logstash']['graphite_ip']
 end
 
-unless(Chef::Config[:solo])
+if(node['logstash']['service_discovery'] && !Chef::Config[:solo])
   if(es_server_ip.nil?)
     es_server_ip = discovery_search(
       node['logstash']['elasticsearch_role'],
