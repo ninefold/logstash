@@ -1,49 +1,25 @@
 {
-<<<<<<< HEAD
-  "sha": "cb6129b37a5c0efff9b0710cf7704948038737d8",
-=======
-  "sha": "e9a2b9ce1cea4c8dd1565e8ee9933ea36fa56fd1",
->>>>>>> Update Berksfile source for elasticsearch
   "sources": {
     "logstash": {
       "path": "."
     },
     "logrotate": {
-<<<<<<< HEAD
-      "locked_version": "0.8.2"
-    },
-    "yum": {
-      "locked_version": "0.6.2"
-    },
-    "java": {
       "locked_version": "1.5.0"
     },
-    "build-essential": {
-      "locked_version": "1.0.2"
-    },
-    "runit": {
-      "locked_version": "0.15.0"
-    },
-    "apache2": {
-      "locked_version": "1.1.10"
-=======
-      "locked_version": "1.2.2"
-    },
     "yum": {
-      "locked_version": "2.3.0"
+      "locked_version": "3.2.0"
     },
     "java": {
-      "locked_version": "1.11.6"
+      "locked_version": "1.22.0"
     },
     "build-essential": {
-      "locked_version": "1.4.0"
+      "locked_version": "2.0.0"
     },
     "runit": {
-      "locked_version": "1.1.6"
+      "locked_version": "1.0.6"
     },
     "apache2": {
-      "locked_version": "1.6.6"
->>>>>>> Update Berksfile source for elasticsearch
+      "locked_version": "1.2.0"
     },
     "yumrepo": {
       "locked_version": "0.16.6",
@@ -51,89 +27,66 @@
       "ref": "865e009b1f131bb85fa706ebc1c426dade2bbd62"
     },
     "rbenv": {
-      "locked_version": "1.4.2",
+      "locked_version": "1.7.1",
       "git": "git://github.com/RiotGames/rbenv-cookbook.git",
-      "ref": "4e5876881f2939bbea1cdfb8076522981045278c"
+      "ref": "5ad5b5bec6002f7178060972bbc75f302fc37f57"
     },
     "rabbitmq": {
-<<<<<<< HEAD
-      "locked_version": "1.4.1",
+      "locked_version": "3.2.1",
       "git": "git://github.com/opscode-cookbooks/rabbitmq.git",
-      "ref": "804e882e0f5876392de1b70da6af4d6e94d4b442"
+      "ref": "1eb523417840bbaf8a85a92d3aa7b61214ddb3e9"
     },
     "minitest-handler": {
-      "locked_version": "0.0.10",
+      "locked_version": "1.2.1",
       "git": "git://github.com/btm/minitest-handler-cookbook.git",
-      "ref": "db7590b6e38efb8a53360b0b470e9ad8c2932ed5"
+      "ref": "927aea60705339db0d71de8e4d8314cb8f419fc3"
     },
     "elasticsearch": {
-      "locked_version": "0.0.2",
-      "git": "git://github.com/bryanwb/cookbook-elasticsearch.git",
-      "ref": "a9b47b0aec348806a570f76e69d3548a8d1fff62"
-=======
-      "locked_version": "2.1.3",
-      "git": "git://github.com/opscode-cookbooks/rabbitmq.git",
-      "ref": "8b41a99779ad874ac380405a4c28b0c3f0f4eea4"
-    },
-    "minitest-handler": {
-      "locked_version": "0.2.1",
-      "git": "git://github.com/btm/minitest-handler-cookbook.git",
-      "ref": "acbffdd0c28c83b44adb9ecab33e151a33e9d6ac"
-    },
-    "elasticsearch": {
-      "locked_version": "0.3.1",
+      "locked_version": "0.3.8",
       "git": "git@github.com:ninefold/chef-elasticsearch.git",
-      "ref": "ab7f9ce5358e1b25fb60481df750ad2b9a75d28b"
->>>>>>> Update Berksfile source for elasticsearch
+      "ref": "8b79b78be9100f400ddef8f58195b522850c514e"
     },
     "apt": {
-      "locked_version": "2.0.0"
+      "locked_version": "1.10.0"
     },
     "php": {
-      "locked_version": "1.2.2"
+      "locked_version": "1.4.6"
     },
     "xml": {
-      "locked_version": "1.1.2"
+      "locked_version": "1.2.4"
     },
     "mysql": {
-<<<<<<< HEAD
       "locked_version": "3.0.0"
     },
     "openssl": {
       "locked_version": "1.0.0"
     },
-    "git": {
-      "locked_version": "1.0.2"
-=======
-      "locked_version": "3.0.2"
+    "yum-epel": {
+      "locked_version": "0.3.6"
     },
-    "openssl": {
-      "locked_version": "1.0.2"
-    },
-    "git": {
-      "locked_version": "2.5.2"
->>>>>>> Update Berksfile source for elasticsearch
-    },
-    "dmg": {
-      "locked_version": "1.1.0"
-    },
-<<<<<<< HEAD
-=======
     "windows": {
-      "locked_version": "1.10.0"
+      "locked_version": "1.30.2"
     },
     "chef_handler": {
-      "locked_version": "1.1.4"
+      "locked_version": "1.1.6"
     },
->>>>>>> Update Berksfile source for elasticsearch
+    "iis": {
+      "locked_version": "2.1.2"
+    },
+    "git": {
+      "locked_version": "1.0.2"
+    },
+    "dmg": {
+      "locked_version": "2.2.0"
+    },
     "python": {
-      "locked_version": "1.3.4"
+      "locked_version": "1.4.6"
     },
     "ant": {
       "locked_version": "1.0.2"
     },
     "ark": {
-      "locked_version": "0.3.0"
+      "locked_version": "0.8.2"
     },
     "discovery": {
       "locked_version": "0.2.0"
@@ -142,40 +95,28 @@
       "locked_version": "0.1.2"
     },
     "application": {
-      "locked_version": "2.0.4"
+      "locked_version": "3.0.0"
     },
     "application_ruby": {
-      "locked_version": "1.1.4"
+      "locked_version": "3.0.2"
     },
     "unicorn": {
       "locked_version": "1.3.0"
     },
     "passenger_apache2": {
-<<<<<<< HEAD
-      "locked_version": "2.0.0"
-=======
-      "locked_version": "2.0.2"
->>>>>>> Update Berksfile source for elasticsearch
+      "locked_version": "2.1.0"
     },
     "ohai": {
-      "locked_version": "1.1.10"
+      "locked_version": "2.0.0"
     },
     "erlang": {
-      "locked_version": "1.3.0"
+      "locked_version": "1.5.2"
     },
-<<<<<<< HEAD
-    "chef_handler": {
-      "locked_version": "1.1.4"
+    "yum-erlang_solutions": {
+      "locked_version": "0.2.0"
     },
     "monit": {
       "locked_version": "0.7.1"
-    },
-    "nginx": {
-      "locked_version": "1.7.0"
-=======
-    "monit": {
-      "locked_version": "0.7.1"
->>>>>>> Update Berksfile source for elasticsearch
     }
   }
 }
